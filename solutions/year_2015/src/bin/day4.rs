@@ -39,14 +39,14 @@ fn main() -> Result<(), Box<dyn Error>> {
         let hash = hasher.clone().finalize();
         if six_zeroes {
             if hash[..3] == [0, 0, 0] {
-                println!("{:?}", hash);
+                //println!("{:?}", hash);
                 println!("{}", counter);
                 break;
             }
         }else
         if hash[..2] == [0, 0] {
             if hash[2] < 16 {
-                println!("{:?}", hash);
+                //println!("{:?}", hash);
                 println!("{}", counter);
                 break;
             }
