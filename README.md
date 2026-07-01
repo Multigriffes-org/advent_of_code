@@ -6,4 +6,5 @@
 - Watch out for `stack`. Overflow is fast with `array`. Better use `heap` type like `vec`.
 - Regex
 - Cheating with `Cell` and `RefCell`
+- Github actions, S3 bucket, Garage, Github actions cache
 - more to come...
