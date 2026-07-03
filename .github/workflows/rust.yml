@@ -12,12 +12,39 @@ on:
 jobs:
   build-and-run:
     runs-on: [self-hosted, linux, x64]
+    env:
+      cache-name: cargo-cache
     steps:
       - name: checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 #v7.0.0
 
-      - name: cache
-        uses: tespkg/actions-cache@e07e2d4953dc8c020d447363e5064e36d04f3cf9 #v1.10.2
+      - name: cache-restore
+        uses: tespkg/actions-cache/restore@e07e2d4953dc8c020d447363e5064e36d04f3cf9 #v1.10.2
+        with:
+          endpoint: ${{ vars.CACHE_ENDPOINT }} # optional, default s3.amazonaws.com
+          port: ${{ vars.CACHE_PORT }} # optional, provide a port to MinIO Client backend, default 80 (HTTP) or 443 (HTTPS)
+          insecure: true # optional, to use http, default false
+          accessKey: ${{ secrets.CACHE_ACCESS_KEY }} # optional
+          secretKey: ${{ secrets.CACHE_SECRET_KEY }} # optional
+          bucket: ${{ vars.CACHE_BUCKET }} # required
+          region: garage # match the s3 host region system
+          use-fallback: false # optional, use github actions cache fallback, default true
+          retry: true # optional, enable retry on failure s3 operations, default false
+
+          path: ./build
+          key: ${{ runner.os }}-${{ env.cache-name }}
+
+      - name: set-permissions
+        run: chmod u+x ./*.sh
+
+      - name: build
+        run: ./build.sh
+
+      - name: run
+        run: ./run.sh
+
+      - name: cache-save
+        uses: tespkg/actions-cache/save@e07e2d4953dc8c020d447363e5064e36d04f3cf9 #v1.10.2
         with:
           endpoint: ${{ vars.CACHE_ENDPOINT }} # optional, default s3.amazonaws.com
           port: ${{ vars.CACHE_PORT }} # optional, provide a port to MinIO Client backend, default 80 (HTTP) or 443 (HTTPS)
@@ -31,14 +58,3 @@ jobs:
 
           path: ./build
           key: ${{ runner.os }}-${{ env.cache-name }}
-        env:
-          cache-name: cargo-cache
-
-      - name: set-permissions
-        run: chmod u+x ./*.sh
-
-      - name: build
-        run: ./build.sh
-
-      - name: run
-        run: ./run.sh
